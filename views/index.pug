@@ -1,22 +1,16 @@
 html
   head
-    title='Moe Counter!'
+    title='计数器!'
     meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     link(rel='icon', type='image/png', href=`${site}/favicon.png`)
     link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/normalize.css')
     link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/bamboo.css')
     link(rel='stylesheet/less', href=`${site}/style.less`)
     script(less, src='https://cdn.jsdelivr.net/npm/less')
-    if ga_id
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      script(async, src=`https://www.googletagmanager.com/gtag/js?id=${ga_id}`)
     script.
       window.dataLayer = window.dataLayer || [];
       function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
-
-      gtag('config', '#{ga_id}');
-
       function _evt_push(type, category, label) {
         gtag('event', type, {
           'event_category' : category,
@@ -29,128 +23,124 @@ html
 
   body
     h1#main_title
-      i Moe Counter!
+      i 计数器!
 
-    h3 How to use
-    p Set a unique id for your counter, replace 
+    h3 使用方法
+    p 为你的计数器设置一个唯一的 ID，将 URL 中的
       code :name
-      |  in the url, That's it!
+      |  替换掉，就可以啦！
 
-    h5 SVG address
+    h5 SVG 地址
     code #{site}/@:name
 
-    h5 Img tag
+    h5 图片标签
     code &lt;img src="#{site}/@:name" alt=":name" />
 
     h5 Markdown
     code ![:name](#{site}/@:name)
 
-    h5 e.g.
-      img(src=`${site}/@index` alt="Moe Counter!")
+    h5 例如：
+      img(src=`${site}/@index` alt="萌萌计数器!")
 
     details#themes
       summary#more_theme(onclick='_evt_push("click", "normal", "more_theme")')
-        h3 More theme✨
-      p Just use the query parameters <code>theme</code>, like this: <code>#{site}/@:name?theme=moebooru</code>
+        h3 更多主题✨
+      p 只需使用查询参数 <code>theme</code>，例如：<code>#{site}/@:name?theme=moebooru</code>
       each theme in Object.keys(themeList)
         div.item(data-theme=theme)
           h5 #{theme}
           img(data-src=`${site}/@demo?theme=${theme}` alt=theme)
 
-    h3 Credits
+    h3 致谢
     ul
       li: a(href='https://render.com/', target='_blank', rel='nofollow') Render
       li: a(href='https://space.bilibili.com/703007996', target='_blank', title='A-SOUL_Official') A-SOUL
       li: a(href='https://github.com/moebooru/moebooru', target='_blank', rel='nofollow') moebooru
       li
-        a(href='javascript:alert("!!! NSFW LINK !!!\\nPlease enter the url manually")') gelbooru.com
+        a(href='javascript:alert("!!! NSFW 链接 !!!\\n请手动输入网址")') gelbooru.com
         |  NSFW
       li: a(href='https://icons8.com/icon/80355/star', target='_blank', rel='nofollow') Icons8
-      span: i And all booru site...
+      span: i 以及所有 booru 网站...
 
-    h3 Tool
+    h3 工具
     .tool
       table
         thead
           tr
-            th Param
-            th Description
-            th Value
+            th 参数
+            th 描述
+            th 值
         tbody
           tr
             td: code name
-            td Unique counter name
+            td 唯一的计数器名称
             td: input#name(type='text', placeholder=':name')
           tr
             td: code theme
-            td Select a counter image theme, default is 
+            td 选择计数器图片主题，默认是
               code moebooru
             td
               select#theme
-                option(value="random", selected) * random
+                option(value="random", selected) * 随机
                 each theme in Object.keys(themeList)
                   option(value=theme) #{theme}
           tr
             td: code padding
-            td Set the minimum length, between 1-16, default is 
+            td 设置最小长度，范围 1-16，默认是
               code 7
             td: input#padding(type='number', value='7', min='1', max='32', step='1', oninput='this.value = this.value.replace(/[^0-9]/g, "")')
           tr
             td: code offset
-            td Set the offset pixel value, between -500-500, default is 
+            td 设置偏移像素值，范围 -500~500，默认是
               code 0
             td: input#offset(type='number', value='0', min='-500', max='500', step='1', oninput='this.value = this.value.replace(/[^0-9|\-]/g, "")')
           tr
             td: code scale
-            td Set the image scale, between 0.1-2, default is 
+            td 设置图片缩放比例，范围 0.1~2，默认是
               code 1
             td: input#scale(type='number', value='1', min='0.1', max='2', step='0.1', oninput='this.value = this.value.replace(/[^0-9|\.]/g, "")')
           tr
             td: code align
-            td Set the image align, Enum top/center/bottom, default is 
+            td 设置图片对齐方式，可选 top/center/bottom，默认是
               code top
             td: select#align(name="align")
-                option(value="top", selected) top
-                option(value="center") center
-                option(value="bottom") bottom
+              option(value="top", selected) 顶部
+              option(value="center") 居中
+              option(value="bottom") 底部
           tr
             td: code pixelated
-            td Enable pixelated mode, Enum 0/1, default is 
+            td 开启像素化模式，可选 0/1，默认是
               code 1
             td
               input#pixelated(type='checkbox', role='switch', checked)
               label(for='pixelated'): span
           tr
             td: code darkmode
-            td Enable dark mode, Enum 0/1/auto, default is 
+            td 开启深色模式，可选 0/1/auto，默认是
               code auto
             td: select#darkmode(name="darkmode")
-                option(value="auto", selected) auto
-                option(value="1") yes
-                option(value="0") no
+              option(value="auto", selected) 自动
+              option(value="1") 是
+              option(value="0") 否
           tr
             td(colspan=3)
-              h4.caption Unusual Options
+              h4.caption 非常规选项
           tr
             td: code num
-            td Set counter display number, 0 for disable, default is 
+            td 设置计数器显示的数字，0 表示禁用，默认是
               code 0
             td: input#num(type='number', value='0', min='0', max='1e15', step='1', oninput='this.value = this.value.replace(/[^0-9]/g, "")')
           tr
             td: code prefix
-            td Set the prefix number, empty for disable
+            td 设置前缀数字，留空表示禁用
             td: input#prefix(type='number', value='', min='0', max='999999', step='1', oninput='this.value = this.value.replace(/[^0-9]/g, "")')
 
-      button#get(onclick='_evt_push("click", "normal", "get_counter")') Generate
+      button#get(onclick='_evt_push("click", "normal", "get_counter")') 生成代码
 
       div
         code#code
         img#result
 
-    p.github
-      a(href='https://github.com/journey-ad/Moe-Counter', target='_blank', onclick='_evt_push("click", "normal", "go_github")') source code
-
     div.back-to-top
 
-    script(async, src='https://cdn.jsdelivr.net/npm/party-js@2/bundle/party.min.js')
     script(async, src=`${site}/script.js`)
