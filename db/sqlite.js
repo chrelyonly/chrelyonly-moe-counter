@@ -1,64 +1,80 @@
-'use strict'
+'use strict';
 
-const path = require('path')
-const Database = require('better-sqlite3')
+const fs = require('fs');
+const path = require('path');
 
-const db = new Database(path.resolve(__dirname, '../count.db'))
+const DATA_DIR = path.resolve(__dirname, '../count-data');
 
-db.exec(`CREATE TABLE IF NOT EXISTS tb_count (
-    id    INTEGER      PRIMARY KEY AUTOINCREMENT
-                       NOT NULL
-                       UNIQUE,
-    name  VARCHAR (32) NOT NULL
-                       UNIQUE,
-    num   BIGINT       NOT NULL
-                       DEFAULT (0) 
-);`)
+// 确保目录存在
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
+// 生成文件路径
+function getFilePath(name) {
+  return path.join(DATA_DIR, `${name}.json`);
+}
+
+// 获取单个计数
 function getNum(name) {
   return new Promise((resolve, reject) => {
-    const stmt = db.prepare('SELECT `name`, `num` from tb_count WHERE `name` = ?')
-    const row = stmt.get(name)
-    resolve(row || { name, num: 0 })
-  })
+    const filePath = getFilePath(name);
+    if (!fs.existsSync(filePath)) {
+      return resolve({ name, num: 0 });
+    }
+
+    try {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      resolve({ name, num: data.num || 0 });
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
-function getAll(name) {
+// 获取全部计数
+function getAll() {
   return new Promise((resolve, reject) => {
-    const stmt = db.prepare('SELECT * from tb_count')
-    const rows = stmt.all()
-    resolve(rows)
-  })
+    try {
+      const files = fs.readdirSync(DATA_DIR);
+      const all = files
+          .filter(file => file.endsWith('.json'))
+          .map(file => {
+            const filePath = path.join(DATA_DIR, file);
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            return { name: path.basename(file, '.json'), num: data.num || 0 };
+          });
+      resolve(all);
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
+// 设置单个计数
 function setNum(name, num) {
   return new Promise((resolve, reject) => {
-    db.exec(`INSERT INTO tb_count(\`name\`, \`num\`)
-            VALUES($name, $num)
-            ON CONFLICT(name) DO
-            UPDATE SET \`num\` = $num;`
-      ,
-      { $name: name, $num: num }
-    )
-
-    resolve()
-  })
+    try {
+      fs.writeFileSync(getFilePath(name), JSON.stringify({ num }, null, 2), 'utf8');
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
+// 批量设置计数
 function setNumMulti(counters) {
   return new Promise((resolve, reject) => {
-    const stmt = db.prepare(`INSERT INTO tb_count(\`name\`, \`num\`)
-    VALUES($name, $num)
-    ON CONFLICT(name) DO
-    UPDATE SET \`num\` = $num;`)
-
-    const setMany = db.transaction((counters) => {
-      for (const counter of counters) stmt.run(counter)
-    })
-
-    setMany(counters)
-    resolve()
-  })
+    try {
+      for (const counter of counters) {
+        fs.writeFileSync(getFilePath(counter.name), JSON.stringify({ num: counter.num }, null, 2), 'utf8');
+      }
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
 module.exports = {
@@ -66,4 +82,4 @@ module.exports = {
   getAll,
   setNum,
   setNumMulti
-}
+};

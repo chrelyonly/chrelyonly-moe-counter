@@ -4,14 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "journey-ad",
   "license": "MIT",
   "dependencies": {
-    "better-sqlite3": "^8.7.0",
     "compression": "^1.8.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
