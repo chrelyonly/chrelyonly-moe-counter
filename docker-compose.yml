@@ -1,6 +1,31 @@
-version: '3'
 services:
-  moe-counter:
-    build: .
-    ports:
-      - "3000:3000"
+  chrelyonly-moe-counter:
+    #    build:
+    #      dockerfile: node:20-alpine
+    image: docker.m.daocloud.io/library/node:22
+    container_name: chrelyonly-moe-counter
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /www/dk_project/dk_app/chrelyonly-moe-counter/app:/app
+    working_dir: /app
+    dns:
+      - 114.114.114.114
+      - 1.1.1.1  # Cloudflare DNS
+    networks:
+      my-network:
+        ipv4_address: 172.20.0.33
+    # 运行应用
+    command: npm run start
+    # command: ["sh", "-c", "tail -f /dev/null"]
+networks:
+  my-network:  # 定义自定义网络
+    name: my-network         # 可选：自定义网络名称
+    driver: bridge  # 使用默认的 bridge 网络驱动
+    ipam: # IP 地址管理配置（IP Address Management）
+      driver: default           # 使用默认 IPAM 驱动
+      config: # 子网配置（可多个）
+        - subnet: 172.20.0.0/16     # 子网网段 172.20.0.1 -- 172.20.255.254
+          gateway: 172.20.0.1       # 默认网关
+          aux_addresses: # 预留 IP 地址
+            host1: 172.20.0.2
+            host2: 172.20.0.3
